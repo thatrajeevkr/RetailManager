@@ -14,12 +14,12 @@ namespace TRMDataManager.Controllers
     public class UserController : ApiController
     {
 
-        public List<UserModel> GetById()
+        public UserModel GetById()
         {
             string id = RequestContext.Principal.Identity.GetUserId();
             UserData data = new UserData();
 
-            return data.GetUserById(id);
+            return data.GetUserById(id).First();
         }
 
     }
