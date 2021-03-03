@@ -10,9 +10,6 @@ namespace TRMDataManager.Library.DataAccess
 {
     public class SaleData
     {
-
-        
-
         public void SaveSale(SaleModel saleInfo, string casherId)
         {
             //TODO: Make this SOLID/DRY/Better
@@ -50,21 +47,33 @@ namespace TRMDataManager.Library.DataAccess
                 CasherId = casherId
             };
             sale.Total = sale.SubTotal + sale.Tax;
-            //Save the sale model
-            SqlDataAccess sql = new SqlDataAccess();
 
-            sql.SaveData("dbo.spSale_Insert",sale, "TRMData");
-            //Get the ID from the sale model
-            sale.Id = sql.LoadData<int, dynamic>("dbo.spSale_Lookup", new { sale.CasherId, sale.SaleDate }, "TRMData").FirstOrDefault();
-
-            //Finish filling in the sale detail models
-            foreach (var item in details)
+            using(SqlDataAccess sql = new SqlDataAccess())
             {
-                item.SaleId = sale.Id;
-                //Save the sale detail models
-                sql.SaveData("dbo.spSaleDetail_Insert", item, "TRMData");
+                try
+                {
+                    sql.StartTransaction("TRMData");
+                    //Save the sale model
+                    sql.SaveDataInTransaction("dbo.spSale_Insert", sale);
+
+                    //Get the ID from the sale model
+                    sale.Id = sql.LoadDataInTransaction<int, dynamic>("dbo.spSale_Lookup", new { sale.CasherId, sale.SaleDate }).FirstOrDefault();
+
+                    //Finish filling in the sale detail models
+                    foreach (var item in details)
+                    {
+                        item.SaleId = sale.Id;
+                        //Save the sale detail models
+                        sql.SaveDataInTransaction("dbo.spSaleDetail_Insert", item);
+                    }
+                    sql.CommitTransaction();
+                }
+                catch
+                {
+                    sql.RollbackTransaction();
+                    throw;
+                }
             }
-            
         }
     }
 }
