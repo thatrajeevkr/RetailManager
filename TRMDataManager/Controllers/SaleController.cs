@@ -13,6 +13,7 @@ namespace TRMDataManager.Controllers
     [Authorize]
     public class SaleController : ApiController
     {
+        [Authorize(Roles ="Cashier")]
         public void Post(SaleModel sale)
         {
             SaleData data = new SaleData();
@@ -21,9 +22,12 @@ namespace TRMDataManager.Controllers
             data.SaveSale(sale, userId);
         }
 
+        [Authorize(Roles ="Admin,Manager")]
         [Route("GetSalesReport")]
         public List<SaleReportModel> GetSalesReport()
         {
+            //If you want to check if the user is in a particular role
+            //RequestContext.Principal.IsInRole("Admin");
             SaleData data = new SaleData();
             return data.GetSaleReport();
         }
