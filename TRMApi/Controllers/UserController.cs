@@ -22,19 +22,15 @@ namespace TRMApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly IConfiguration _config;
-
-        public UserController(IConfiguration config)
-        {
-            _config = config;
-        }
-
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
-        public UserController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public UserController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IConfiguration config)
         {
             _context = context;
             _userManager = userManager;
+            _config = config;
         }
+        [HttpGet]
         public UserModel GetById()
         {
             string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -64,7 +60,7 @@ namespace TRMApi.Controllers
                     Email = user.Email
                 };
 
-                u.Roles = userRoles.Where(x => x.UserId == u.Id).ToDictionary(x => x.RoleId, x => x.UserId);
+                u.Roles = userRoles.Where(x => x.UserId == u.Id).ToDictionary(x => x.RoleId, x => x.Name);
                 //foreach (var r in user.Roles)
                 //{
                 //    u.Roles.Add(r.RoleId, roles.Where(x => x.Id == r.RoleId).First().Name);

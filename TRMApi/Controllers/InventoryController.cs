@@ -24,6 +24,7 @@ namespace TRMApi.Controllers
         }
 
         [Authorize(Roles = "Manager,Admin")]
+        [HttpGet]
         public List<InventoryModel> Get()
         {
             InventoryData data = new InventoryData(_config);
@@ -32,6 +33,7 @@ namespace TRMApi.Controllers
 
         //[Authorize(Roles ="WarehouseWorker")] If you have to be a warehouseworker and admin to perform this action
         [Authorize(Roles = "Admin")]
+        [HttpPost]
         public void Post(InventoryModel item)
         {
             InventoryData data = new InventoryData(_config);
