@@ -21,22 +21,21 @@ namespace TRMApi.Controllers
     [Authorize]
     public class UserController : ControllerBase
     {
-        private readonly IConfiguration _config;
+        private readonly IUserData _userData;
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
-        public UserController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IConfiguration config)
+        public UserController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IUserData userData)
         {
             _context = context;
             _userManager = userManager;
-            _config = config;
+            _userData = userData;
         }
         [HttpGet]
         public UserModel GetById()
         {
             string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            UserData data = new UserData(_config);
 
-            return data.GetUserById(id).First();
+            return _userData.GetUserById(id).First();
         }
 
         [Authorize(Roles = "Admin")]
@@ -61,10 +60,7 @@ namespace TRMApi.Controllers
                 };
 
                 u.Roles = userRoles.Where(x => x.UserId == u.Id).ToDictionary(x => x.RoleId, x => x.Name);
-                //foreach (var r in user.Roles)
-                //{
-                //    u.Roles.Add(r.RoleId, roles.Where(x => x.Id == r.RoleId).First().Name);
-                //}
+                
                 output.Add(u);
             }
             return output;
