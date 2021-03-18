@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using TRMDesktopUI.EventModels;
@@ -93,7 +94,7 @@ namespace TRMDesktopUI.ViewModels
                 //Capture more information about the user
                 await _apiHelper.GetLoggedInUserInfo(result.Access_Token);
 
-                _eventAggregator.PublishOnUIThread(new LogOnEvent());
+                await _eventAggregator.PublishOnUIThreadAsync(new LogOnEvent(), new CancellationToken());
             }
             catch (Exception ex)
             {

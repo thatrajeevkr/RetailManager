@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using TRMDesktopUI.EventModels;
@@ -13,55 +14,59 @@ namespace TRMDesktopUI.ViewModels
     public class ShellViewModel : Conductor<object>, IHandle<LogOnEvent>
     {
         private IEventAggregator _eventAggregator;
-        private SalesViewModel _salesViewModel;
         private ILoggedInUserModel _user;
         private IAPIHelper _apiHelper;
 
-        public ShellViewModel(IEventAggregator eventAggregator, SalesViewModel salesViewModel, ILoggedInUserModel user, IAPIHelper apiHelper)
+        public ShellViewModel(IEventAggregator eventAggregator,
+                              ILoggedInUserModel user,
+                              IAPIHelper apiHelper)
         {
             _eventAggregator = eventAggregator;
-            _salesViewModel = salesViewModel;
             _user = user;
-            _eventAggregator.Subscribe(this);
-            ActivateItem(IoC.Get<LoginViewModel>());
+            _eventAggregator.SubscribeOnPublishedThread(this);
+            ActivateItemAsync(IoC.Get<LoginViewModel>(), new CancellationToken());
             _apiHelper = apiHelper;
         }
         public bool IsLoggedIn
         {
-            get {
+            get
+            {
                 bool output = false;
 
-                if(String.IsNullOrEmpty(_user.Token) == false)
+                if (String.IsNullOrEmpty(_user.Token) == false)
                 {
                     output = true;
                 }
                 return output;
             }
-            
+
         }
 
-        public void UserManagement()
+
+        public async Task UserManagement()
         {
-            ActivateItem(IoC.Get<UserDisplayViewModel>());
+            await ActivateItemAsync(IoC.Get<UserDisplayViewModel>(), new CancellationToken());
         }
+
 
 
         public void ExitApplication()
         {
-            TryClose();
+            TryCloseAsync();
         }
 
-        public void LogOut()
+        public async Task LogOut()
         {
             _user.ResetUserModel();
             _apiHelper.LogOfUser();
-            ActivateItem(IoC.Get<LoginViewModel>());
+            await ActivateItemAsync(IoC.Get<LoginViewModel>(), new CancellationToken());
             NotifyOfPropertyChange(() => IsLoggedIn);
         }
 
-        public void Handle(LogOnEvent message)
+
+        public async Task HandleAsync(LogOnEvent message, CancellationToken cancellationToken)
         {
-            ActivateItem(_salesViewModel);
+            await ActivateItemAsync(IoC.Get<SalesViewModel>(), cancellationToken);
             NotifyOfPropertyChange(() => IsLoggedIn);
         }
     }

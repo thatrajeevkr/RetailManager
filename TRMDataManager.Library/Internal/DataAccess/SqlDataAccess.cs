@@ -1,4 +1,6 @@
 ﻿using Dapper;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -10,11 +12,18 @@ using System.Threading.Tasks;
 
 namespace TRMDataManager.Library.Internal.DataAccess
 {
-    internal class SqlDataAccess : IDisposable
+    public class SqlDataAccess : IDisposable, ISqlDataAccess
     {
+        private readonly IConfiguration _config;
+        private readonly ILogger _logger;
+        public SqlDataAccess(IConfiguration config, ILogger<SqlDataAccess> logger)
+        {
+            _config = config;
+            _logger = logger;
+        }
         public string GetConnectionString(string name)
         {
-            return ConfigurationManager.ConnectionStrings[name].ConnectionString;
+            return _config.GetConnectionString(name);
         }
 
         public List<T> LoadData<T, U>(string storedProcedure, U parameters, string connectionStringName)
@@ -44,6 +53,8 @@ namespace TRMDataManager.Library.Internal.DataAccess
         //Open Connection/Start Transaction Method
         private IDbConnection _connection;
         private IDbTransaction _transaction;
+        private readonly IConfiguration config;
+
         public void StartTransaction(string connectionStringName)
         {
             string connectionString = GetConnectionString(connectionStringName);
@@ -54,6 +65,7 @@ namespace TRMDataManager.Library.Internal.DataAccess
             _transaction = _connection.BeginTransaction();
         }
 
+        private bool isClosed = false;
         //Close connection /stop tansaction method
         public void CommitTransaction()
         {
@@ -70,23 +82,36 @@ namespace TRMDataManager.Library.Internal.DataAccess
         //Dispose
         public void Dispose()
         {
-            CommitTransaction();
+            if(isClosed == false)
+            {
+                try
+                {
+                    CommitTransaction();
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogError(ex, "Commit Transaction failed in the dispose method");
+                }
+            }
+
+            _transaction = null;
+            _connection = null;
         }
 
         //Save using the transaction
         public void SaveDataInTransaction<T>(string storedProcedure, T parameters)
         {
-                _connection.Execute(storedProcedure, parameters,
-                    commandType: CommandType.StoredProcedure, transaction: _transaction);
+            _connection.Execute(storedProcedure, parameters,
+                commandType: CommandType.StoredProcedure, transaction: _transaction);
         }
 
         //Load using the transaction 
         public List<T> LoadDataInTransaction<T, U>(string storedProcedure, U parameters)
         {
-                List<T> rows = _connection.Query<T>(storedProcedure, parameters,
-                    commandType: CommandType.StoredProcedure, transaction: _transaction).ToList();
+            List<T> rows = _connection.Query<T>(storedProcedure, parameters,
+                commandType: CommandType.StoredProcedure, transaction: _transaction).ToList();
 
-                return rows;
+            return rows;
         }
     }
 }
