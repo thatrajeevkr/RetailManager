@@ -38,9 +38,15 @@ namespace TRMApi.Controllers
         [HttpGet]
         public List<SaleReportModel> GetSalesReport()
         {
-            //If you want to check if the user is in a particular role
-            //RequestContext.Principal.IsInRole("Admin");
             return _saleData.GetSaleReport();
+        }
+
+        [AllowAnonymous]
+        [Route("GetTaxRate")]
+        [HttpGet]
+        public decimal GetTaxRate()
+        {
+            return _saleData.GetTaxRate();
         }
     }
 }
