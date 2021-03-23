@@ -16,3 +16,11 @@ Phase 2 Roadmap
  5. Move the database to Azure SQL
  6. Deploy the desktop app to Azure Blob storage
  7. Web-based inventory control system
+
+Phase 3 Roadmap
+ 1. Mock up inventory so it reall increaments /decreaments
+ 2. Administrative portal (Web-Based)
+ 3. User Balzor Web Assembly PWA
+ 4. Dockerize backend (API, etc)
+ 5. Break off a piece as a microservice
+ 6. Upgrade to .NET 5
