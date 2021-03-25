@@ -33,7 +33,7 @@ namespace Portal.Authentication
                 new KeyValuePair<string, string>("password", userForAuthentication.Password)
             });
 
-            var authResult = await _client.PostAsync("https://localhost:5001/token", data);
+            var authResult = await _client.PostAsync("https://localhost:44308/token", data);
             var authContent = await authResult.Content.ReadAsStringAsync();
 
             if (authResult.IsSuccessStatusCode == false)
