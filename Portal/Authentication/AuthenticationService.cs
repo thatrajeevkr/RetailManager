@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Configuration;
 using Portal.Models;
 using System;
 using System.Collections.Generic;
@@ -16,12 +17,16 @@ namespace Portal.Authentication
         private readonly HttpClient _client;
         private readonly ILocalStorageService _localStorage;
         private readonly AuthenticationStateProvider _authStateProvider;
+        private readonly IConfiguration _config;
+        private string authTokenStorageKey;
 
-        public AuthenticationService(ILocalStorageService localStorage, HttpClient client, AuthenticationStateProvider authStateProvider)
+        public AuthenticationService(ILocalStorageService localStorage, HttpClient client, AuthenticationStateProvider authStateProvider, IConfiguration config)
         {
             _localStorage = localStorage;
             _client = client;
             _authStateProvider = authStateProvider;
+            _config = config;
+            authTokenStorageKey = _config["authTokenStorageKey"];
         }
 
         public async Task<AuthenticatedUserModel> Login(AuthenticationUserModel userForAuthentication)
@@ -32,8 +37,8 @@ namespace Portal.Authentication
                 new KeyValuePair<string, string>("username", userForAuthentication.Email),
                 new KeyValuePair<string, string>("password", userForAuthentication.Password)
             });
-
-            var authResult = await _client.PostAsync("https://localhost:44308/token", data);
+            string api = _config["apiLocation"] + _config["tokenEndpoint"];
+            var authResult = await _client.PostAsync(api, data);
             var authContent = await authResult.Content.ReadAsStringAsync();
 
             if (authResult.IsSuccessStatusCode == false)
@@ -44,7 +49,7 @@ namespace Portal.Authentication
             var result = JsonSerializer.Deserialize<AuthenticatedUserModel>(
                 authContent,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            await _localStorage.SetItemAsync("authToken", result.Access_Token);
+            await _localStorage.SetItemAsync(authTokenStorageKey, result.Access_Token);
 
             ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(result.Access_Token);
 
@@ -55,7 +60,7 @@ namespace Portal.Authentication
 
         public async Task LogOut()
         {
-            await _localStorage.RemoveItemAsync("authToken");
+            await _localStorage.RemoveItemAsync(authTokenStorageKey);
             ((AuthStateProvider)_authStateProvider).NotifyUserLogOut();
             _client.DefaultRequestHeaders.Authorization = null;
         }
