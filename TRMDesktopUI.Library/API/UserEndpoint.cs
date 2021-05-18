@@ -71,5 +71,16 @@ namespace TRMDesktopUI.Library.API
                 }
             }
         }
+
+        public async Task CreateUser(CreateUserModel model)
+        {
+            var data = new { model.FirstName, model.LastName, model.EmailAddress, model.Password };
+
+            using HttpResponseMessage response = await _apiHelper.ApiClient.PostAsJsonAsync("/api/User/Register", data);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(response.ReasonPhrase);
+            }
+        }
     }
 }

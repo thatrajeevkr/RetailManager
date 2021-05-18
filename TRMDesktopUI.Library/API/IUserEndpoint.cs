@@ -10,5 +10,6 @@ namespace TRMDesktopUI.Library.API
         Task RemoveUserFromRole(string userId, string roleName);
         Task AdduserToRole(string userId, string roleName);
         Task<Dictionary<string, string>> GetAllRoles();
+        Task CreateUser(CreateUserModel model);
     }
 }
