@@ -14,11 +14,9 @@ namespace TRMApi.Controllers
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger, RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager)
+        public HomeController(RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager)
         {
-            _logger = logger;
             _roleManager = roleManager;
             _userManager = userManager;
         }
@@ -30,23 +28,23 @@ namespace TRMApi.Controllers
 
         public async Task<IActionResult> Privacy()
         {
-            //string[] roles = { "Admin", "Manager", "Cashier" };
-            //foreach (var role in roles)
-            //{
-            //    var roleExist = await _roleManager.RoleExistsAsync(role);
+            string[] roles = { "Admin", "Manager", "Cashier" };
+            foreach (var role in roles)
+            {
+                var roleExist = await _roleManager.RoleExistsAsync(role);
 
-            //    if (roleExist == false)
-            //    {
-            //        await _roleManager.CreateAsync(new IdentityRole(role));
-            //    }
-            //}
-            //var user = await _userManager.FindByNameAsync("kaz@kaz.com.ng");
+                if (roleExist == false)
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(role));
+                }
+            }
+            var user = await _userManager.FindByNameAsync("kaz@kaz.com.ng");
 
-            //if (user != null)
-            //{
-            //    await _userManager.AddToRoleAsync(user, "Admin");
-            //    await _userManager.AddToRoleAsync(user, "Cashier");
-            //}
+            if (user != null)
+            {
+                await _userManager.AddToRoleAsync(user, "Admin");
+                await _userManager.AddToRoleAsync(user, "Cashier");
+            }
             return View();
         }
 

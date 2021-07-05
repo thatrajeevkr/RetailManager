@@ -30,30 +30,25 @@ namespace TRMDataManager.Library.DataAccess
         {
             string connectionString = GetConnectionString(connectionStringName);
 
-            using (IDbConnection connection = new SqlConnection(connectionString))
-            {
-                List<T> rows = connection.Query<T>(storedProcedure, parameters,
-                    commandType: CommandType.StoredProcedure).ToList();
+            using IDbConnection connection = new SqlConnection(connectionString);
+            List<T> rows = connection.Query<T>(storedProcedure, parameters,
+                commandType: CommandType.StoredProcedure).ToList();
 
-                return rows;
-            }
+            return rows;
         }
 
         public void SaveData<T>(string storedProcedure, T parameters, string connectionStringName)
         {
             string connectionString = GetConnectionString(connectionStringName);
 
-            using (IDbConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Execute(storedProcedure, parameters,
-                    commandType: CommandType.StoredProcedure);
-            }
+            using IDbConnection connection = new SqlConnection(connectionString);
+            connection.Execute(storedProcedure, parameters,
+                commandType: CommandType.StoredProcedure);
         }
 
         //Open Connection/Start Transaction Method
         private IDbConnection _connection;
         private IDbTransaction _transaction;
-        private readonly IConfiguration config;
 
         public void StartTransaction(string connectionStringName)
         {

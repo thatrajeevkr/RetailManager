@@ -10,7 +10,7 @@
         </div>
         <div class="col-auto">
             <label for="password" class="sr-only">Password:</label>
-            <InputText type="password" id="password" class="form-control" @bind-Value="model.Password" placeholder="Email Address" />
+            <InputText type="password" id="password" class="form-control" @bind-Value="model.Password" placeholder="Password" />
         </div>
         <div class="col-auto">
             <button type="submit" class="btn btn-success">Log In</button>
@@ -19,6 +19,14 @@
             <button type="button" class="btn btn-primary" @onclick="RegisterUser">Register</button>
         </div>
     </div>
+    @if (showAuthenticationError)
+    {
+        <div class="form-row">
+            <div class="text-danger">
+                @authenticationErrorText
+            </div>
+        </div>
+    }
 </EditForm>
 
 @code {

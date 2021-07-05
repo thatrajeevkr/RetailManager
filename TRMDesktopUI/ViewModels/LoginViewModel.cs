@@ -13,10 +13,10 @@ namespace TRMDesktopUI.ViewModels
     public class LoginViewModel : Screen
     {
 
-        private IAPIHelper _apiHelper;
+        private readonly IAPIHelper _apiHelper;
         private string _userName;
         private string _password;
-        private IEventAggregator _eventAggregator;
+        private readonly IEventAggregator _eventAggregator;
 
         public LoginViewModel(IAPIHelper apiHelper, IEventAggregator eventAggregator)
         {
@@ -52,9 +52,9 @@ namespace TRMDesktopUI.ViewModels
         {
             get
             {
-                 bool output = ErrorMessage?.Length > 0;
+                _isErrorVisible = ErrorMessage?.Length > 0;
 
-                return output;
+                return _isErrorVisible;
             }
         }
 
