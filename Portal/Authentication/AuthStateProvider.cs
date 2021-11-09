@@ -56,10 +56,17 @@ namespace Portal.Authentication
         public async Task<bool> NotifyUserAuthentication(string token)
         {
             bool isAuthenticatedOutput;
-            Task<AuthenticationState> authState;
             try
             {
                 await _aPIHelper.GetLoggedInUserInfo(token);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            Task<AuthenticationState> authState;
+            try
+            {
                 var authenticatedUser = new ClaimsPrincipal(
                                             new ClaimsIdentity(JwtParser.ParseClaimsFromJwt(token),
                                             "jwtAuthType"));

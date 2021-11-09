@@ -1,6 +1,6 @@
 {
-  "name": "Portal",
-  "short_name": "Portal",
+  "name": "TimCo Retail Manager",
+  "short_name": "TRM",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
