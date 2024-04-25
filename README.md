@@ -2,6 +2,7 @@
 Clone the repository and start the project. 
 It is hosted in Azure cloud but can be run locally as well.
 This is created as practice to learn different concepts and should not be used anywhere else.
+Remember to change the API Settings and URL by changing the port in the address.
 
 ## The following tecnologies are being used : 
 
