@@ -26,7 +26,8 @@ namespace RMDesktopUI
             _container.Instance(_container);
             _container
                 .Singleton<IWindowManager, WindowManager>()
-                .Singleton<IEventAggregator, EventAggregator>();
+                .Singleton<IEventAggregator, EventAggregator>()
+                .Singleton<IAPIHelper, APIHelper>();
             //Get all viewmodels and register it to the container on Start --> Reflection
             GetType().Assembly.GetTypes()
                 .Where(type => type.IsClass)
