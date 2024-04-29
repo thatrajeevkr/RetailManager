@@ -8,14 +8,16 @@ using System.Net.Http.Headers;
 using System.Configuration;
 using RMDesktopUI.Models;
 
-namespace RMDesktopUI.Helpers
+namespace RMDesktopUI.Library.Api
 {
     public class APIHelper : IAPIHelper
     {
         private HttpClient apiClient { get; set; }
+        private ILoggedInUserModel loggedInUser;
 
-        public APIHelper()
+        public APIHelper(ILoggedInUserModel _loggedInUser)
         {
+            loggedInUser = _loggedInUser;
             InitializeClient();
         }
 
@@ -44,6 +46,35 @@ namespace RMDesktopUI.Helpers
                 {
                     var result = await response.Content.ReadAsAsync<AuthenticatedUser>();
                     return result;
+                }
+                else
+                {
+                    throw new Exception(response.ReasonPhrase);
+                }
+            }
+        }
+
+        public async Task GetLoggedInUserInfo(string token)
+        {
+            // clear the request header
+            apiClient.DefaultRequestHeaders.Clear();
+            apiClient.DefaultRequestHeaders.Accept.Clear();
+            // we're looking for json data back
+            apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("aplication/json"));
+            // We put the authorization token in the request header
+            apiClient.DefaultRequestHeaders.Add("Authorization", $"bearer {token}");
+
+            using (HttpResponseMessage response = await apiClient.GetAsync("/api/User"))
+            {
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadAsAsync<LoggedInUserModel>();
+                    loggedInUser.CreatedDate = result.CreatedDate;
+                    loggedInUser.EmailAddress = result.EmailAddress;
+                    loggedInUser.FirstName = result.FirstName;
+                    loggedInUser.LastName = result.LastName;
+                    loggedInUser.Id = result.Id;
+                    loggedInUser.Token = token;
                 }
                 else
                 {
